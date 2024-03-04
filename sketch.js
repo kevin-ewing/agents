@@ -1,13 +1,13 @@
+let refreshButton;
+
 const CANVAS_WIDTH = 1400;
 const CANVAS_HEIGHT = 800;
 
+let palType;
+let colorPalette;
 let resetButton;
 let backgroundAlpha = 10;
-let alphaSlider;
-let antsSlider;
-let typeSelector;
-let startSelector;
-let antTypes = 2;
+let antTypes;
 let antsSystems = [];
 let pheromoneArray = [];
 let antsNum = 40000;
@@ -21,22 +21,12 @@ const enemyPheromoneFactor = 1;
 const pheromoneDecay = 1;
 
 function windowResized() {
-  setup(); // call setup again to redraw your sketch
+  refresh();
 }
 
-function setup() {
-  // prevent the creation of a canvas element
-  resizeCanvas(windowWidth, windowHeight);
-  frameRate(30); // Throttle the frame rate
-  blendMode(MULTIPLY);
-  angleMode(DEGREES);
-  pixelDensity(1);
+function refresh() {
   background(0);
-  lookAhead = random(2, 30);
-  turnAngle = random(20, 40);
   antsSystems = [];
-  stepsize = random(0.2, 4);
-  let colorPalette = genPal(antTypes);
 
   pheromoneArray = [];
   for (let i = 0; i < antTypes; i++) {
@@ -52,10 +42,59 @@ function setup() {
   }
 }
 
+function regen() {
+  lookAhead = random(2, 30);
+  turnAngle = random(20, 40);
+  stepsize = random(0.2, 4);
+  antTypes = random() < 0.5 ? 2 : 3;
+  colorPalette = genPal(antTypes);
+}
+
+function setup() {
+  // prevent the creation of a canvas element
+  resizeCanvas(windowWidth, windowHeight);
+  frameRate(30); // Throttle the frame rate
+  blendMode(MULTIPLY);
+  angleMode(DEGREES);
+  pixelDensity(1);
+  background(0);
+  regen();
+  refresh();
+
+  refreshButton = createButton("Refresh");
+  refreshButton.position(windowWidth - 90, 140); // Position in bottom left corner
+  refreshButton.mousePressed(onRefresh); // Call onRefresh when button is pressed
+
+  // Style the button
+  refreshButton.style("background-color", "white"); // Set background color
+  refreshButton.style("color", "black"); // Set text color
+  refreshButton.style("text-align", "center"); // Center the text
+  refreshButton.style("cursor", "pointer"); // Change cursor on hover
+  refreshButton.style("border-radius", "12px"); // Add rounded corners
+}
+
+function onRefresh() {
+  setup();
+}
+
+function stats() {
+  fill(255); // Set text color to white
+  textSize(16); // Set text size
+  textAlign(RIGHT, TOP); // Align text to the top right corner
+  text(
+    `Ant Count: ${antsNum}\nAnt Types: ${antTypes}\nLook Ahead (Pixels): ${lookAhead.toFixed(
+      4
+    )}\nTurn Angle (Degrees): ${turnAngle.toFixed(
+      4
+    )}\nStep Size (Pixels): ${stepsize.toFixed(4)}\nPalette Type: ${palType}`,
+    windowWidth - 10,
+    10
+  );
+}
+
 function draw() {
   blendMode(MULTIPLY);
   background(0, backgroundAlpha); // Update viewing trail
-
   loadPixels();
   const systemsLength = antsSystems.length;
   for (let i = 0; i < systemsLength; i++) {
@@ -64,6 +103,9 @@ function draw() {
     antsSystems[i].updatePosition();
   }
   updatePixels();
+
+  blendMode(BLEND); // Reset blend mode for normal text rendering
+  stats(); // Display stats on top of everything
 }
 
 class Ant {
@@ -176,32 +218,35 @@ class System {
 }
 
 function genPal(n) {
-  let palette = [];
-  let span = 40 * n;
-  let base = random(0, 360);
-  colorMode(HSB);
-
-  for (let i = 0; i < n; i++) {
-    let hue = ((span / n) * i + base) % 360;
-    palette.push(color(hue, 30, 100));
+  colorMode(HSB, 360, 100, 100, 100);
+  let palette = Array(n); // Clear previous palette
+  let baseHue = random(0, 360); // Starting hue
+  let colorType = floor(random(4)); // 0: Analogous, 1: Complimentary, 2: Triadic, 3: Monochromatic
+  switch (colorType) {
+    case 0: // Analogous
+      palType = "Analogous";
+      for (let i = 0; i < n; i++) {
+        palette[i] = [(baseHue + i * 30) % 360, 80, 80];
+      }
+      break;
+    case 1: // Complimentary
+      palType = "Complimentary";
+      for (let i = 0; i < n; i++) {
+        palette[i] = [(baseHue + i * 180) % 360, 80, 80];
+      }
+      break;
+    case 2: // Triadic
+      palType = "Triadic";
+      for (let i = 0; i < n; i++) {
+        palette[i] = [(baseHue + i * 120) % 360, 80, 80];
+      }
+      break;
+    case 3: // Monochromatic
+      palType = "Monochromatic";
+      for (let i = 0; i < n; i++) {
+        palette[i] = [baseHue, 80, (60 + i * 20) % 100]; // Change brightness for monochromatic
+      }
+      break;
   }
-
-  colorMode(RGB);
   return palette;
-}
-
-function resetAnts() {
-  background(0);
-  antsSystems = [];
-  pheromoneArray = [];
-  backgroundAlpha = alphaSlider.value();
-  antsNum = antsSlider.value();
-  antTypes = typeSelector.value();
-  startType = startSelector.value();
-
-  let colorPalette = genPal(antTypes);
-
-  for (let i = 0; i < antTypes; i++) {
-    antsSystems.push(new System(i, colorPalette[i]));
-  }
 }
