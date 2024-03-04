@@ -60,17 +60,6 @@ function setup() {
   background(0);
   regen();
   refresh();
-
-  refreshButton = createButton("Refresh");
-  refreshButton.position(windowWidth - 90, 140); // Position in bottom left corner
-  refreshButton.mousePressed(onRefresh); // Call onRefresh when button is pressed
-
-  // Style the button
-  refreshButton.style("background-color", "white"); // Set background color
-  refreshButton.style("color", "black"); // Set text color
-  refreshButton.style("text-align", "center"); // Center the text
-  refreshButton.style("cursor", "pointer"); // Change cursor on hover
-  refreshButton.style("border-radius", "12px"); // Add rounded corners
 }
 
 function onRefresh() {
@@ -90,6 +79,17 @@ function stats() {
     windowWidth - 10,
     10
   );
+
+  refreshButton = createButton("Refresh");
+  refreshButton.position(windowWidth - 90, 140); // Position in bottom left corner
+  refreshButton.mousePressed(onRefresh); // Call onRefresh when button is pressed
+
+  // Style the button
+  refreshButton.style("background-color", "white"); // Set background color
+  refreshButton.style("color", "black"); // Set text color
+  refreshButton.style("text-align", "center"); // Center the text
+  refreshButton.style("cursor", "pointer"); // Change cursor on hover
+  refreshButton.style("border-radius", "12px"); // Add rounded corners
 }
 
 function draw() {
