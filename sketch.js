@@ -58,6 +58,7 @@ function setup() {
   angleMode(DEGREES);
   pixelDensity(1);
   background(0);
+  refreshButton = createButton("Refresh");
   regen();
   refresh();
 }
@@ -66,7 +67,7 @@ function onRefresh() {
   setup();
 }
 
-function stats() {
+function ui() {
   fill(255); // Set text color to white
   textSize(16); // Set text size
   textAlign(RIGHT, TOP); // Align text to the top right corner
@@ -80,7 +81,17 @@ function stats() {
     10
   );
 
-  refreshButton = createButton("Refresh");
+  fill(0);
+  rect(windowWidth - 100, windowHeight - 10, windowWidth, windowHeight);
+  fill(255); // Set text color to white
+  textSize(10); // Set text size
+  textAlign(RIGHT, TOP); // Align text to the top right corner
+  text(
+    `Frame Rate: ${frameRate().toFixed(2).padEnd(4, "0")}`,
+    windowWidth - 10,
+    windowHeight - 10
+  );
+
   refreshButton.position(windowWidth - 90, 140); // Position in bottom left corner
   refreshButton.mousePressed(onRefresh); // Call onRefresh when button is pressed
 
@@ -105,7 +116,7 @@ function draw() {
   updatePixels();
 
   blendMode(BLEND); // Reset blend mode for normal text rendering
-  stats(); // Display stats on top of everything
+  ui(); // Display ui on top of everything
 }
 
 class Ant {
