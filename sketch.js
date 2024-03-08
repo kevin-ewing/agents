@@ -46,7 +46,7 @@ function regen() {
   lookAhead = random(2, 30);
   turnAngle = random(20, 40);
   stepsize = random(0.2, 4);
-  antTypes = random() < 0.5 ? 2 : 3;
+  antTypes = floor(random(0, 3)) + 2;
   colorPalette = genPal(antTypes);
 }
 
@@ -237,25 +237,58 @@ function genPal(n) {
     case 0: // Analogous
       palType = "Analogous";
       for (let i = 0; i < n; i++) {
-        palette[i] = [(baseHue + i * 30) % 360, 80, 80];
+        palette[i] = [(baseHue + i * 30) % 360, 70, 100];
       }
       break;
     case 1: // Complimentary
       palType = "Complimentary";
       for (let i = 0; i < n; i++) {
-        palette[i] = [(baseHue + i * 180) % 360, 80, 80];
+        let saturation = 70;
+        let brightness = 90;
+        let hueVar = 0;
+        if (n > 2) {
+          // Vary saturation and brightness for more than 2 colors
+          saturation -= i * (30 / (n - 1)); // Decrease saturation gradually
+          brightness -= i * (15 / (n - 1)); // Decrease brightness gradually
+          hueVar += i * (10 / (n - 1)); // Add slight hue variation
+        }
+        palette[i] = [
+          (baseHue + i * 180 + hueVar) % 360,
+          saturation,
+          brightness,
+        ];
       }
       break;
     case 2: // Triadic
       palType = "Triadic";
       for (let i = 0; i < n; i++) {
-        palette[i] = [(baseHue + i * 120) % 360, 80, 80];
+        let saturation = 70;
+        let brightness = 90;
+        let hueVar = 0;
+        if (n > 3) {
+          // Vary saturation and brightness for more than 2 colors
+          saturation -= i * (30 / (n - 1)); // Decrease saturation gradually
+          brightness -= i * (15 / (n - 1)); // Decrease brightness gradually
+          hueVar += i * (10 / (n - 1)); // Add slight hue variation
+        }
+        palette[i] = [
+          (baseHue + i * 120 + hueVar) % 360,
+          saturation,
+          brightness,
+        ];
       }
       break;
     case 3: // Monochromatic
       palType = "Monochromatic";
       for (let i = 0; i < n; i++) {
-        palette[i] = [baseHue, 80, (60 + i * 20) % 100]; // Change brightness for monochromatic
+        let hueVariation = 5; // Slight variation in hue
+        let saturation = 40 + i * (40 / (n - 1)); // Vary saturation a good amount
+        let brightness = 90 + i * (10 / (n - 1)); // Not change brightness very much
+        palette[i] = [
+          (baseHue + hueVariation * i) % 360,
+          saturation,
+          brightness,
+        ];
       }
       break;
   }
