@@ -10,7 +10,7 @@ let backgroundAlpha = 10;
 let antTypes;
 let antsSystems = [];
 let pheromoneArray = [];
-let antsNum = 40000;
+let antsNum;
 let lookAhead;
 let turnAngle;
 let stepSize;
@@ -47,6 +47,7 @@ function regen() {
   turnAngle = random(20, 40);
   stepsize = random(0.2, 4);
   antTypes = floor(random(0, 3)) + 2;
+  antsNum = 80000 - 10000 * antTypes;
   colorPalette = genPal(antTypes);
 }
 
@@ -159,11 +160,8 @@ class Ant {
     const center = this.smell(0);
     const left = this.smell(-turnAngle);
 
-    if (center > left && center > right) {
-    } else if (left < right) {
-      this.angle += turnAngle;
-    } else if (left > right) {
-      this.angle -= turnAngle;
+    if (center <= left || center <= right) {
+      this.angle += left < right ? turnAngle : -turnAngle;
     }
   }
 
@@ -201,16 +199,15 @@ class System {
   updatePheromone() {
     const pheromones = pheromoneArray[this.antIndex];
     const lengthY = pheromones.length;
+    const decay = pheromoneDecay; // Cache pheromoneDecay to avoid repeated scope lookups
     for (let i = 0; i < lengthY; i++) {
       const row = pheromones[i];
       const lengthX = row.length;
       for (let j = 0; j < lengthX; j++) {
         const value = row[j];
-        if (value > 0) {
-          row[j] = Math.min(value - pheromoneDecay, 255);
-        } else if (value < 0) {
-          row[j] = Math.max(value + pheromoneDecay, -255);
-        }
+        // Combining the checks for positive and negative values to avoid duplicate code
+        row[j] =
+          value > 0 ? Math.max(value - decay, 0) : Math.min(value + decay, 0);
       }
     }
   }
